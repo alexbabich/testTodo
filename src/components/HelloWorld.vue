@@ -1,10 +1,11 @@
 <template>
   <b-container class="hello mt-4 mb-4">
     <h1>{{ msg }}</h1>
+      <input class="new-todo" v-model="newTodo" />
+    <button @click="addTodo()">add new todo</button>
     <ul v-if="todos" class="todoapp todo-list">
       <li
         v-for="todo in todos"
-        v-if="todo.id < 11"
         class="todo"
         :key="todo.id"
         :class="{ completed: todo.completed}">
@@ -24,11 +25,24 @@ export default {
   data () {
     return {
       msg: 'todo list',
+      newTodo: [],
       todos: [],
       errors: []
     }
   },
   methods: {
+    addTodo: function () {
+      let value = this.newTodo && this.newTodo.trim()
+      if (!value) {
+        return
+      }
+      this.todos.push({
+        id: (new Date()).getTime(),
+        title: value,
+        completed: false
+      })
+      this.newTodo = ''
+    },
     removeTodo: function (todo) {
       this.todos.splice(this.todos.indexOf(todo), 1)
     }
@@ -38,7 +52,7 @@ export default {
   created () {
     axios.get(`http://jsonplaceholder.typicode.com/todos`)
       .then(response => {
-        this.todos = response.data
+        this.todos = response.data.splice(0, 10)
       })
       .catch(e => {
         this.errors.push(e)
